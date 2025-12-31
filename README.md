@@ -144,5 +144,3 @@ This is an exploratory project. Feedback on architecture, constraints, and desig
 MIT License
 
 ---
-
-Just tell me what you want to do next.
