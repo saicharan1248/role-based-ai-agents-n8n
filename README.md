@@ -1,119 +1,148 @@
-Role-Based AI Agent Orchestration in n8n
-Overview
+# Role-Based AI Agent Orchestration in n8n
 
-This repository documents the design and incremental build of a role-based AI agent system implemented in n8n, using a supervisor → worker architecture.
+## Overview
 
-The goal is to explore production-grade patterns for AI agents that prioritize:
+This repository documents the design and incremental build of a role-based AI agent system implemented using n8n. The system follows a supervisor to worker architecture and focuses on reliability, explicit control, and production-ready patterns rather than autonomous or self-replicating agent loops.
 
-determinism
+The project is intentionally design-first. Code, workflows, and diagrams will be added gradually as the architecture is validated.
 
-explicit role control
+---
 
-strict boundaries
+## Problem Statement
 
-operational reliability
+Many AI agent implementations work well in demos but fail in real environments due to uncontrolled loops, unclear agent responsibilities, unrestricted tool usage, and lack of guardrails.
 
-This is a design-first project. Code and workflows will be added incrementally.
+This project explores how n8n can be used as a deterministic orchestration engine, behaving like a state machine and job queue, instead of an AutoGPT-style autonomous loop.
 
-Problem Statement
+---
 
-Many AI agent implementations fail in real environments due to:
+## Design Goals
 
-unbounded loops
+The primary goals of this project are:
 
-unclear agent responsibilities
+* Explicit and user-selected agent roles
+* Clear separation of responsibilities between agents
+* Deterministic and inspectable execution
+* Strong validation and safety boundaries
+* Maintainability and observability over autonomy
 
-uncontrolled tool access
+---
 
-lack of observability and guardrails
+## Core Architecture
 
-This project explores how n8n can be used as a state machine and job orchestrator, rather than an AutoGPT-style loop.
+The system is designed around the following components:
 
-Core Design Principles
+### Supervisor Agent
 
-Explicit roles (no implicit behavior)
+The supervisor agent is responsible only for orchestration logic. Its responsibilities include:
 
-Supervisor agent handles only:
+* Interpreting user input and selected role
+* Selecting the appropriate agent specification
+* Routing tasks to the correct worker workflow
+* Enforcing permissions and execution boundaries
 
-task decomposition
+The supervisor does not execute business logic or tools directly.
 
-role selection
+---
 
-workflow routing
+### Worker Agents
 
-Worker agents are:
+Worker agents are implemented as pre-templated n8n sub-workflows. Each worker:
 
-pre-templated n8n sub-workflows
+* Has a single, well-defined responsibility
+* Accepts strictly validated inputs
+* Produces structured outputs
+* Uses only allowlisted tools
 
-strictly validated via JSON schemas
+Worker agents do not call other agents or modify system state outside their scope.
 
-limited to allowlisted tools
+---
 
-No recursion
+## Role-Based Execution
 
-No self-spawning workflows
+Agent behavior is driven by explicit role selection. The same system can act in different roles, such as Chief, Financial Advisor, or Operations Agent, based on user input.
 
-Planned MVP Scope
+Role selection controls:
 
-Manual role selection (e.g. Chief, Financial Advisor, Ops)
+* The prompt and reasoning context
+* The tools and workflows available
+* Permission levels and approval requirements
 
-Supervisor workflow for routing and orchestration
+Role switching is handled through configuration and state management, not autonomous reasoning.
 
-Predefined worker workflows with strict inputs/outputs
+---
 
-Agent registry (role, capabilities, permissions, versions)
+## Planned MVP Scope
 
-Hybrid LLM setup:
+The initial MVP will include:
 
-API-based model for supervision
+* Manual role selection through input or UI
+* A supervisor workflow for task routing
+* Three predefined worker agent workflows
+* An agent registry storing role definitions, capabilities, and versions
+* A hybrid model setup using API-based LLMs for supervision and local models for workers
+* Basic guardrails including schema validation, timeouts, and approval gates
 
-Local models for workers
+---
 
-Guardrails:
+## Guardrails and Constraints
 
-schema validation
+To ensure reliability and safety, the following constraints are enforced:
 
-timeouts
+* No recursive agent calls
+* No self-spawning workflows
+* Strict JSON schema validation for all inputs and outputs
+* Tool access restricted per agent role
+* Human approval required for high-impact actions
 
-approval gates for high-impact actions
+These constraints are intentional and non-negotiable.
 
-What This Project Is NOT
+---
 
-Not an AutoGPT clone
+## What This Project Is Not
 
-Not a self-replicating agent system
+This project is not:
 
-Not a fully autonomous AI platform
+* An AutoGPT or autonomous agent loop
+* A self-replicating AI system
+* A fully autonomous decision-making platform
 
-All automation is explicit and bounded by design.
+All behavior is explicitly defined and controlled.
 
-Current Status
+---
 
-🚧 Design phase
+## Current Status
 
-Initial architecture, schemas, and workflow templates will be added step by step.
+This project is currently in the design phase. The focus is on validating architecture, constraints, and execution patterns before scaling implementation.
 
-Roadmap
+---
 
- Agent registry schema
+## Roadmap
 
- Supervisor workflow design
+* Define the agent registry schema
+* Implement the supervisor workflow
+* Build the first worker agent
+* Demonstrate role switching
+* Add evaluation and observability mechanisms
 
- First worker agent (Financial Advisor)
+---
 
- Role-switching demo
+## Purpose of This Repository
 
- Evaluation and guardrails
+The goal of this repository is to document practical agent orchestration patterns that can realistically be deployed and maintained in production environments.
 
-Why This Exists
+---
 
-The intention is to learn, validate, and share practical agent orchestration patterns that actually hold up under real operational constraints.
+## Contributions and Feedback
 
-Contributions / Feedback
+This is an exploratory project. Feedback on architecture, constraints, and design trade-offs is welcome.
 
-This is an exploratory project.
-Architectural feedback and real-world lessons are welcome.
+---
 
-License
+## License
 
-MIT
+MIT License
+
+---
+
+Just tell me what you want to do next.
